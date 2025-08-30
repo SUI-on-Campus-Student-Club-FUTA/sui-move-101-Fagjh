@@ -1,48 +1,26 @@
-module workshop_project::todo_list{
-    use std::string::String;
+#[test_only]
+module workshop_project::todo_list_test{
+    const ENotFound: u64 = 1000;
 
-    /// List of todos. Can be managed by the owner and shared with others.
-    public struct TodoList has key, store {
-        id: UID,
-        items: vector<String>
+
+    use workshop_project::todo_list::{TodoList, Self};
+    #[test_only]
+    fun test_create_list(): TodoList{
+        let ctx = &mut tx_context::dummy();
+        todo_list::new(ctx)
     }
+    #[test]
+    fun tes_todo_list(){
+        
+        let mut list = test_create_list();
+        todo_list::add(&mut list, b"wash my clothes!".to_string());
 
-    /// Create a new todo list.
-public fun new(ctx: &mut TxContext):TodoList {
-    let list = TodoList {
-        id: object::new(ctx),
-        items: vector[]
-    };
-    //droppped
-    (list)
-}
+        assert!(todo_list::get_item(&list, 0)  == b"wash my clothes!".to_string(), ENotFound);
 
-public fun get_item(list: &TodoList, index: u64): String {
-        list.items[index]
-}
+        //add 2 more items to the list
+        //check if the length of the list is 3!
+        todo_list::delete(list);
 
-public fun delete(list: TodoList){
-    let TodoList{
-        id,
-        items: _
-    } = list;
 
-    id.delete();
-}
-
-/// Add a new todo item to the list.
-public fun add(list: &mut TodoList, item: String) {
-    list.items.push_back(item);
-}
-
-/// Remove a todo item from the list by index.
-public fun remove(list: &mut TodoList, index: u64): String {
-    list.items.remove(index)
-}
-
-/// Get the number of items in the list.
-public fun length(list: &TodoList): u64 {
-    list.items.length()
-}
-
+    }
 }
